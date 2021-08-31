@@ -1,0 +1,5 @@
+- [ ] Destacar os espaços/quebras de linha em volta da string
+- [ ] Opção -f e -d para arquivo de script e diretório dos testes
+- [ ] Código de saída != 0 quando algum teste falhar
+- [X] Avisar quando nenhum teste for executado
+- [ ] Mostrar sumário dos testes (exceto quando QUIET)
