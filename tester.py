@@ -79,14 +79,6 @@ COLORS = {
     "white": "\u001b[37m",
 }
 
-# if os.path.isdir(args.directory):
-
-path = os.path.dirname(os.path.abspath(__file__))
-def abspath(filename):
-    return os.path.normpath(os.path.join(path, filename))
-
-
-
 
 def diff_str(file1, text):
     with open(file1, "r") as fl:
@@ -98,7 +90,8 @@ def diff_str(file1, text):
 
 
 def log(msg, level=0):
-    if SILENT: return None
+    if SILENT:
+        return None
     elif level == 1:
         print(f"{COLORS['red']}{msg}{COLORS['reset']}")  # red
     elif QUIET:
@@ -111,9 +104,26 @@ def log(msg, level=0):
         print(msg)
 
 
-#=========================#
-#   LOCALIZAR lab<x>.py   #
-#=========================#
+#========================#
+#   LOCALIZAR ARQUIVOS   #
+#========================#
+
+
+if args.directory is None:
+    path = os.path.dirname(os.path.abspath(__file__))
+elif os.path.isdir(args.directory):
+    path = args.directory
+elif os.path.isfile(args.directory):
+    log(f"{args.directory} é um arquivo, mas -d espera um diretório. Rode o programa com a opção -h para ver a ajuda.", 1)
+    exit(1)
+else:
+    log(f"O diretório {args.directory} não existe. Rode o programa com a opção -h para ver a ajuda.", 1)
+    exit(1)
+
+
+def abspath(filename):
+    return os.path.normpath(os.path.join(path, filename))
+
 
 if args.filename is None:
     r = re.compile(r'lab\d\d.py')
@@ -152,11 +162,13 @@ for infile, outfile in zip(infiles, outfiles):
 
     if diff is None:
         if not SUMMARY:
-            log("Teste {:02d} ({file}): resultado correto".format(total_tests, file=basename(infile)), 2)
+            log("Teste {:02d} ({file}): resultado correto".format(
+                total_tests, file=basename(infile)), 2)
         tests_passed += 1
     else:
         if not SUMMARY:
-            log("Teste {:02d} ({file}): resultado incorreto".format(total_tests, file=basename(infile)), 1)
+            log("Teste {:02d} ({file}): resultado incorreto".format(
+                total_tests, file=basename(infile)), 1)
             if VERBOSE:
                 log(">>> Sua resposta:", 3)
                 log(diff[1])
@@ -169,7 +181,8 @@ if total_tests == 0:
     exit(1)
 
 log("Sumário: | {green}Passou  {red}Falhou  {cyan}Total{reset}".format(**COLORS))
-log("         | {green}{passed: >6}  {red}{failed: >6}  {cyan}{total: >5}{reset}".format(passed=tests_passed, failed=tests_failed, total=tests_passed+tests_failed, **COLORS))
+log("         | {green}{passed: >6}  {red}{failed: >6}  {cyan}{total: >5}{reset}".format(
+    passed=tests_passed, failed=tests_failed, total=tests_passed + tests_failed, **COLORS))
 
 if tests_failed > 0:
     exit(1)

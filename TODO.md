@@ -1,5 +1,5 @@
 -   [?] Destacar os espaços/quebras de linha em volta da string
--   [ ] Opção -d para arquivo de script e diretório dos testes
+-   [x] Opção -d para arquivo de script e diretório dos testes
 -   [x] Opção -f para arquivo de script e diretório dos testes
 -   [x] Código de saída != 0 quando algum teste falhar
 -   [x] Avisar quando nenhum teste for executado
