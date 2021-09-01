@@ -168,5 +168,6 @@ if total_tests == 0:
     log("Nenhum teste realizado. Execute o programa com a flag -h para obter ajuda.", 1)
     exit(1)
 
-log("Sumário: | {green}Passou  {red}Falhou  {blue}Total{reset}".format(**COLORS))
-log("         | {green}{passed: >6}  {red}{failed: >6}  {blue}{total: >5}{reset}".format(passed=tests_passed, failed=tests_failed, total=tests_passed+tests_failed, **COLORS))
+log("Sumário: | {green}Passou  {red}Falhou  {cyan}Total{reset}".format(**COLORS))
+log("         | {green}{passed: >6}  {red}{failed: >6}  {cyan}{total: >5}{reset}".format(passed=tests_passed, failed=tests_failed, total=tests_passed+tests_failed, **COLORS))
+
