@@ -171,3 +171,5 @@ if total_tests == 0:
 log("Sumário: | {green}Passou  {red}Falhou  {cyan}Total{reset}".format(**COLORS))
 log("         | {green}{passed: >6}  {red}{failed: >6}  {cyan}{total: >5}{reset}".format(passed=tests_passed, failed=tests_failed, total=tests_passed+tests_failed, **COLORS))
 
+if tests_failed > 0:
+    exit(1)
