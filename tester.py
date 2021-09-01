@@ -80,9 +80,13 @@ COLORS = {
     "white": "\u001b[37m",
 }
 
+# if os.path.isdir(args.directory):
+
 path = os.path.dirname(os.path.abspath(__file__))
 def abspath(filename):
     return os.path.normpath(os.path.join(path, filename))
+
+
 
 
 def diff_str(file1, text):
@@ -112,14 +116,22 @@ def log(msg, level=0):
 #   LOCALIZAR lab<x>.py   #
 #=========================#
 
-r = re.compile(r'lab\d\d.py')
-for file in os.listdir(path):
-    if r.match(file):
-        labfile = file
-        break
+if args.filename is None:
+    r = re.compile(r'lab\d\d.py')
+    for file in os.listdir(path):
+        if r.match(file):
+            labfile = file
+            break
+    else:
+        log("Código do laboratório não encontrado. Rode o programa com a opção -h para ver a ajuda.", 1)
+        exit(1)
+        
+elif os.path.isfile(args.filename):
+    labfile = args.filename
 else:
-    log("Código do laboratório não encontrado.", 1)
+    log(f"O aquivo {args.filename} não existe. Rode o programa com a opção -h para ver a ajuda.", 1)
     exit(1)
+
 
 
 #============#
