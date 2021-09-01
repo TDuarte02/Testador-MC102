@@ -40,10 +40,14 @@ parser.add_argument('--summary', '-s', action='store_true',
                     help='Exibe apenas o sumário.')
 parser.add_argument('--silent', '-x', action='store_true',
                     help='Não exibe nada na tela.')
-                    # --file / -f
+parser.add_argument('--filename', '-f',
+                    help='Arquivo para ser executado (.py).')
+parser.add_argument('--directory', '-d',
+                    help='Diretório dos arquivos de teste (.in .out).')
 args = parser.parse_args()
-VERBOSE, QUIET, SILENT = args.verbose, args.quiet, args.silent
+VERBOSE, QUIET, SUMMARY, SILENT = args.verbose, args.quiet, args.summary, args.silent
 
+# args.filename
 
 #=============#
 #   HELPERS   #
@@ -108,7 +112,7 @@ else:
 #============#
 
 i = 1
-testfile = "arq{:02d}.in".format(i)
+testfile = abspath("arq{:02d}.in".format(i))
 
 tests_passed = 0
 tests_failed = 0
