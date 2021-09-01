@@ -126,8 +126,8 @@ else:
 #   TESTES   #
 #============#
 
-i = 1
-testfile = abspath("arq{:02d}.in".format(i))
+# i = 1
+
 
 tests_passed = 0
 tests_failed = 0
