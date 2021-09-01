@@ -78,7 +78,11 @@ Sumário: | Passou  Falhou  Total
 
 - Para ver apenas as mensagens de erro (incluindo os testes que não passarem), use a opção `-q` (ou `--quiet`).
 
-- Para que o programa execute silenciosamente, use a opção `-x` (ou `--silent`). Esta opção pode parecer inútil, já que, aparentemente, o resultado do programa se torna invisível. O fato é que o *return code* do programa será igual a 0 (*success*) apenas quando todos os testes passarem, ou 1 em todos os outros casos. Dessa forma, é possível usar esta opção programaticamente para verificar se todos os testes passaram. 
+- Para que o programa execute silenciosamente, use a opção `-x` (ou `--silent`). Esta opção pode parecer inútil, já que, aparentemente, o resultado do programa se torna invisível. O fato é que o *return code* do programa será igual a 0 (*success*) apenas quando todos os testes passarem, ou 1 em todos os outros casos. Dessa forma, é possível usar esta opção programaticamente para verificar se todos os testes passaram.
+- Para salvar a saída do programa em um arquivo de texto, é recomendável desabilitar a utilização de cores. Para isso, use a opção `--no-colors`:
+```shell
+python3 tester.py -d tests -v --no-colors > resultado_teste.txt
+```
 
 ### Combinações de opções
 > Aqui, *combinação* se refere à utilização simultânea de duas ou mais opções. 

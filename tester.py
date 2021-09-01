@@ -49,6 +49,8 @@ parser.add_argument('--summary', '-s', action='store_true',
                     help='Exibe apenas o sumário.')
 parser.add_argument('--silent', '-x', action='store_true',
                     help='Não exibe nada na tela.')
+parser.add_argument('--no-colors', action='store_true',
+                    help='Não utilizar cores para o output (útil para salvar a saída em um arquivo).')
 parser.add_argument('--filename', '-f',
                     help='Arquivo para ser executado (.py).')
 parser.add_argument('--directory', '-d',
@@ -84,7 +86,14 @@ COLORS = {
     "magenta": "\u001b[35m",
     "cyan": "\u001b[36m",
     "white": "\u001b[37m",
-}
+} if not args.no_colors else {"reset": "",
+                              "red": "",
+                              "green": "",
+                              "yellow": "",
+                              "blue": "",
+                              "magenta": "",
+                              "cyan": "",
+                              "white": ""}
 
 
 def diff_str(file1, text):
