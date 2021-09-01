@@ -36,7 +36,9 @@ parser.add_argument('--verbose', '-v', action='store_true',
                     help='Mostra a diferença entre as respostas quando um teste não passa.')
 parser.add_argument('--quiet', '-q', action='store_true',
                     help='Mostra apenas os testes que falharem.')
-parser.add_argument('--silent', '-s', action='store_true',
+parser.add_argument('--summary', '-s', action='store_true',
+                    help='Exibe apenas o sumário.')
+parser.add_argument('--silent', '-x', action='store_true',
                     help='Não exibe nada na tela.')
                     # --file / -f
 args = parser.parse_args()
@@ -46,6 +48,18 @@ VERBOSE, QUIET, SILENT = args.verbose, args.quiet, args.silent
 #=============#
 #   HELPERS   #
 #=============#
+
+
+COLORS = {
+    "reset": "\u001b[0m",
+    "red": "\u001b[31m",
+    "green": "\u001b[32m",
+    "yellow": "\u001b[33m",
+    "blue": "\u001b[34m",
+    "magenta": "\u001b[35m",
+    "cyan": "\u001b[36m",
+    "white": "\u001b[37m",
+}
 
 path = os.path.dirname(os.path.abspath(__file__))
 def abspath(filename):
@@ -64,13 +78,13 @@ def diff_str(file1, text):
 def log(msg, level=0):
     if SILENT: return None
     elif level == 1:
-        print(f"\u001b[31m{msg}\u001b[0m")  # red
-    elif QUIET == True:
+        print(f"{COLORS['red']}{msg}{COLORS['reset']}")  # red
+    elif QUIET:
         return None
     elif level == 2:
-        print(f"\u001b[32m{msg}\u001b[0m")  # green
+        print(f"{COLORS['green']}{msg}{COLORS['reset']}")  # green
     elif level == 3:
-        print(f"\u001b[33m{msg}\u001b[0m")  # yellow
+        print(f"{COLORS['yellow']}{msg}{COLORS['reset']}")  # yellow
     else:
         print(msg)
 
@@ -112,10 +126,12 @@ while os.path.exists(testfile):
     diff = diff_str(resfile, output)
 
     if diff is None:
-        log("Teste {:02d}: resultado correto".format(i), 2)
+        if not SUMMARY:
+            log("Teste {:02d}: resultado correto".format(i), 2)
         tests_passed += 1
     else:
-        log("Teste {:02d}: resultado incorreto".format(i), 1)
+        if not SUMMARY:
+            log("Teste {:02d}: resultado incorreto".format(i), 1)
         if VERBOSE:
             log(">>> Sua resposta:", 3)
             log(diff[1])
@@ -129,3 +145,6 @@ while os.path.exists(testfile):
 if tests_passed + tests_failed == 0:
     log("Nenhum teste realizado. Execute o programa com a flag -h para obter ajuda.", 1)
     exit(1)
+
+log("Sumário: | {green}Passou  {red}Falhou  {blue}Total{reset}".format(**COLORS))
+log("         | {green}{passed: >6}  {red}{failed: >6}  {blue}{total: >5}{reset}".format(passed=tests_passed, failed=tests_failed, total=tests_passed+tests_failed, **COLORS))
