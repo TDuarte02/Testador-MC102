@@ -49,7 +49,6 @@ parser.add_argument('--directory', '-d',
 args = parser.parse_args()
 VERBOSE, QUIET, SUMMARY, SILENT = args.verbose, args.quiet, args.summary, args.silent
 
-# args.filename
 
 #=============#
 #   HELPERS   #
@@ -125,7 +124,7 @@ if args.filename is None:
     else:
         log("Código do laboratório não encontrado. Rode o programa com a opção -h para ver a ajuda.", 1)
         exit(1)
-        
+
 elif os.path.isfile(args.filename):
     labfile = args.filename
 else:
@@ -133,12 +132,9 @@ else:
     exit(1)
 
 
-
 #============#
 #   TESTES   #
 #============#
-
-# i = 1
 
 
 tests_passed = 0
@@ -147,11 +143,6 @@ total_tests = 0
 
 infiles, outfiles = get_test_files(path)
 for infile, outfile in zip(infiles, outfiles):
-    # resfile = "arq{:02d}.out".format(i)
-    # if not os.path.exists(resfile):
-    #     log("Arquivo", resfile, "não encontrado.", 1)
-    #     # i += 1
-    #     continue
     total_tests += 1
 
     output = subprocess.check_output(
@@ -172,9 +163,6 @@ for infile, outfile in zip(infiles, outfiles):
                 log(">>> Resposta correta:", 3)
                 log(diff[0])
         tests_failed += 1
-
-    # i += 1
-    # testfile = "arq{:02d}.in".format(i)
 
 if total_tests == 0:
     log("Nenhum teste realizado. Execute o programa com a flag -h para obter ajuda.", 1)
