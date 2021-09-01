@@ -1,4 +1,10 @@
 
+# TODO: REMOVE
+*.in
+*.out
+joão.py
+lab00.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
