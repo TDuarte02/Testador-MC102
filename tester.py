@@ -14,6 +14,8 @@ As saídas serão comparadas com os arquivos arq<i>.out.
 """
 
 import os
+from glob import glob
+import itertools
 import subprocess
 import re
 import argparse
@@ -52,6 +54,19 @@ VERBOSE, QUIET, SUMMARY, SILENT = args.verbose, args.quiet, args.summary, args.s
 #=============#
 #   HELPERS   #
 #=============#
+
+
+def get_test_files(directory: str) -> tuple:
+    infiles = sorted(glob(os.path.join(directory, "*.in")))
+    outfiles = [f"{x[:-2]}out" for x in infiles]
+    outfiles_that_exists = [os.path.isfile(x) for x in outfiles]
+    infiles = list(itertools.compress(infiles, outfiles_that_exists))
+    outfiles = list(itertools.compress(outfiles, outfiles_that_exists))
+    return infiles, outfiles
+
+
+def basename(path):
+    return os.path.splitext(os.path.basename(path))[0]
 
 
 COLORS = {
@@ -116,37 +131,40 @@ testfile = abspath("arq{:02d}.in".format(i))
 
 tests_passed = 0
 tests_failed = 0
+total_tests = 0
 
-while os.path.exists(testfile):
-    resfile = "arq{:02d}.out".format(i)
-    if not os.path.exists(resfile):
-        log("Arquivo", resfile, "não encontrado.", 1)
-        i += 1
-        continue
+infiles, outfiles = get_test_files(path)
+for infile, outfile in zip(infiles, outfiles):
+    # resfile = "arq{:02d}.out".format(i)
+    # if not os.path.exists(resfile):
+    #     log("Arquivo", resfile, "não encontrado.", 1)
+    #     # i += 1
+    #     continue
+    total_tests += 1
 
     output = subprocess.check_output(
-        f'python3 "{labfile}" < "{testfile}"', shell=True, text=True)
+        f'python3 "{labfile}" < "{infile}"', shell=True, text=True)
 
-    diff = diff_str(resfile, output)
+    diff = diff_str(outfile, output)
 
     if diff is None:
         if not SUMMARY:
-            log("Teste {:02d}: resultado correto".format(i), 2)
+            log("Teste {:02d} ({file}): resultado correto".format(total_tests, file=basename(infile)), 2)
         tests_passed += 1
     else:
         if not SUMMARY:
-            log("Teste {:02d}: resultado incorreto".format(i), 1)
-        if VERBOSE:
-            log(">>> Sua resposta:", 3)
-            log(diff[1])
-            log(">>> Resposta correta:", 3)
-            log(diff[0])
+            log("Teste {:02d} ({file}): resultado incorreto".format(total_tests, file=basename(infile)), 1)
+            if VERBOSE:
+                log(">>> Sua resposta:", 3)
+                log(diff[1])
+                log(">>> Resposta correta:", 3)
+                log(diff[0])
         tests_failed += 1
 
-    i += 1
-    testfile = "arq{:02d}.in".format(i)
+    # i += 1
+    # testfile = "arq{:02d}.in".format(i)
 
-if tests_passed + tests_failed == 0:
+if total_tests == 0:
     log("Nenhum teste realizado. Execute o programa com a flag -h para obter ajuda.", 1)
     exit(1)
 
