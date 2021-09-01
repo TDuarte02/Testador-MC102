@@ -6,11 +6,14 @@ Script para testar tarefas de laboratório de MC102.
     
     Uso: python3 tester.py
 
-O programa lab<x>.py será testado com todos os arquivos arq<i>.in
-encontrados no diretório corrente. Os testes serão iniciados com i
-igual a 01 e serão interrompidos quando arq<i>.in não for encontrado.
-
-As saídas serão comparadas com os arquivos arq<i>.out.
+O programa lab<x>.py será testado com todos os arquivos .in
+encontrados no diretório corrente por padrão, e que tiverem
+arquivos de mesmo nome, mas com extensão .out. 
+Tanto o arquivo de script para ser testado quanto o diretório 
+dos arquivos de teste podem ser configurados. Também é possível 
+configurar a saída do programa. Execute 
+    python3 tester.py --help
+para mais detalhes.
 """
 
 import os
@@ -28,11 +31,15 @@ import argparse
 parser = argparse.ArgumentParser(description="""\
     Script para testar tarefas de laboratório de MC102.
 
-O programa lab<x>.py será testado com todos os arquivos arq<i>.in
-encontrados no diretório corrente. Os testes serão iniciados com i
-igual a 01 e serão interrompidos quando arq<i>.in não for encontrado.
+O programa lab<x>.py será testado com todos os arquivos .in
+encontrados no diretório corrente por padrão, e que tiverem
+arquivos de mesmo nome, mas com extensão .out. 
+Tanto o arquivo de script para ser testado quanto o diretório 
+dos arquivos de teste podem ser configurados.
 
-As saídas serão comparadas com os arquivos arquivos arq<i>.out.
+As saídas serão comparadas identicamente com o arquivo .out,
+então se atente a diferenças como espaços em branco e quebras
+de linha.
 """, formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('--verbose', '-v', action='store_true',
                     help='Mostra a diferença entre as respostas quando um teste não passa.')
@@ -45,7 +52,7 @@ parser.add_argument('--silent', '-x', action='store_true',
 parser.add_argument('--filename', '-f',
                     help='Arquivo para ser executado (.py).')
 parser.add_argument('--directory', '-d',
-                    help='Diretório dos arquivos de teste (.in .out).')
+                    help='Diretório dos arquivos de teste (.in e .out).')
 args = parser.parse_args()
 VERBOSE, QUIET, SUMMARY, SILENT = args.verbose, args.quiet, args.summary, args.silent
 
@@ -138,7 +145,7 @@ if args.filename is None:
 elif os.path.isfile(args.filename):
     labfile = args.filename
 else:
-    log(f"O aquivo {args.filename} não existe. Rode o programa com a opção -h para ver a ajuda.", 1)
+    log(f"O arquivo {args.filename} não existe. Rode o programa com a opção -h para ver a ajuda.", 1)
     exit(1)
 
 
