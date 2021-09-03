@@ -23,8 +23,6 @@ import subprocess
 import re
 import argparse
 
-ENABLE_COLORS = False
-
 
 class Logger:
     NORMAL = 0
