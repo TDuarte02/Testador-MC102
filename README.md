@@ -1,6 +1,13 @@
-# Script para testar tarefas de laboratório de MC102.
+# Script para testar tarefas de laboratório de MC102. <!-- omit in toc -->
 
 Este script foi desenvolvido para testar as atividades de laboratório da disciplina MC102 frente aos testes disponibilizados na página da disciplina. É necessário ter o Python 3 instalado na máquina para executá-lo.
+
+## Sumário <!-- omit in toc -->
+- [Download](#download)
+- [Instruções de uso](#instruções-de-uso)
+- [Configurando o programa](#configurando-o-programa)
+  - [Combinações de opções](#combinações-de-opções)
+- [Utilização programática](#utilização-programática)
 
 ## Download
 Faça o download deste repositório clicando no botão verde e em [Download ZIP](https://github.com/TDuarte02/Testador-MC102/archive/refs/heads/main.zip). O arquivo `tester.py` é seu arquivo de interesse. Mova-o para a localização apropriada de onde possa ser executado.
@@ -89,3 +96,76 @@ python3 tester.py -d tests -v --no-colors > resultado_teste.txt
 - As opções `-d` e `-f` podem ser combinadas sem nenhum efeito colateral. 
 - As *flags* `-q` e `-s` (o mesmo que `-qs`) podem ser combinadas, gerando como saída apenas erros do programa, mas não testes que eventualmente não passarem.
 - As demais *flags* podem ser combinadas, mas apenas a mais restrita terá efeito. Por exemplo, se `-q` e `-v` forem usadas, apenas `-q` terá efeito. Se, por outro lado, `-x` e `-q` forem usadas, apenas `-x` terá efeito e nada será escrito na *standard output*. 
+
+## Utilização programática
+
+Você também pode utilizar o `tester.py` de maneira programática, isto é, através de outro programa Python. Isso pode ser interessante para executar várias suites de teste de uma vez, para automatizar o código, ou apenas por diversão. A API do `tester.py` é orientada a objetos e se baseia em duas classes: `Logger` e `Tester`. Para testar o arquivo `script.py` com os arquivos de teste no diretório `./tests`, alguém escreveria:
+```python
+from tester import Tester, Logger
+tester = Tester() # cria o objeto tester
+result = tester.test("./tests", "script.py") # usa o método test para realizar a testagem
+```
+Neste caso, `result` será um `dict` contendo as estatísticas:
+```plain
+{'passed': 9, 'failed': 1, 'total': 10}
+```
+Essas estatísticas podem ser transformadas em um sumário:
+```python
+from tester import Tester, Logger
+tester = Tester() # cria o objeto tester
+result = tester.test("./tests", "script.py") # usa o método test para realizar a testagem
+tester.summarize(**result) # imprime o sumário
+```
+Aqui, `tester.summarize(**result)` é o mesmo que `tester.summarize(result["passed"], result["failed"], result["total"])`.
+
+Por padrão, o `Tester` usa o `Logger` padrão para o *output* dos dados. Você pode, no entanto, fornecer um Logger personalizado:
+```python
+from tester import Tester, Logger
+logger = Logger(colored=False) # cria o objeto logger que não utilizará cores
+tester = Tester(logger) # criar o tester injetando o logger personalizado
+result = tester.test("./tests", "script.py")
+tester.summarize(**result)
+```
+Isso é equivalente à seguinte linha de comando:
+```shell
+python3 tester.py -d ./tests -f script.py --no-colors
+```
+A diferença principal é que você é responsável por tratar as exceções que serão eventualmente lançadas.
+
+Para mostrar as informações de debug:
+```python
+from tester import Tester, Logger
+logger = Logger(verbose=True) # cria o objeto logger que imprimirá informações de debug
+tester = Tester(logger) # criar o tester injetando o logger personalizado
+result = tester.test("./tests", "script.py")
+tester.summarize(**result)
+```
+Isso é, basicamente, equivalente à seguinte linha de comando:
+```shell
+python3 tester.py -d ./tests -f script.py -v
+```
+
+Um caso particularmente útil na utilização programática é não gerar nenhuma saída.
+```python
+from tester import Tester, Logger
+logger = Logger(silent=True) # cria o objeto logger que não imprimirá nada
+tester = Tester(logger) # criar o tester injetando o logger personalizado
+result = tester.test("./tests", "script.py") # não imprime nada
+tester.summarize(**result) # funciona independentemente do Logger fornecido.
+```
+Porém isso pode ser feito de forma mais enxuta:
+```python
+from tester import Tester
+tester = Tester(silent=True) # criar o tester que usará um Logger silencioso.
+result = tester.test("./tests", "script.py") # não imprime nada
+tester.summarize(**result) # funciona independentemente do Logger fornecido.
+```
+Esse último snippet é, essencialmente, uma forma mais curta do exemplo anterior. Os dois são totalmente equivalentes.
+
+Esses dois últimos snippets são equivalentes à linha de comando:
+```shell
+python3 tester.py -d ./tests -f script.py -x
+```
+Por outro lado, a versão programática é mais útil, já que retorna as estatísticas de qualquer forma.
+
+As configurações do `Logger` seguem as mesmas considerações feitas na seção [Combinações de Opções](#combinações-de-opções).
