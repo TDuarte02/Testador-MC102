@@ -85,7 +85,7 @@ class Tester:
 
         Args:
             logger (Logger, optional): A Logger instance with your own configuration. If None, the default Logger is used. Defaults to None.
-            silent (bool, optional): If True, the Logger will be called with silent=True and any other setting will be overriden. Defaults to False.
+            silent (bool, optional): If True, the Logger will be called with silent=True and nothing will be printed. Defaults to False.
         """
         if logger is None or not isinstance(logger, Logger):
             self.logger = Logger(silent=silent)
