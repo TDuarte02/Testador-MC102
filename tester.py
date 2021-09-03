@@ -25,6 +25,7 @@ import argparse
 
 ENABLE_COLORS = False
 
+
 class Logger:
     NORMAL = 0
     ERROR = 1
@@ -34,12 +35,12 @@ class Logger:
     DEBUG = 10
     DEBUG2 = 11
     DEBUG3 = 12
+
     def __init__(self, colored=True, quiet=False, verbose=False, silent=False):
         self.colored = colored
         self.quiet = quiet
         self.verbose = verbose
         self.silent = silent
-    
 
     def colorize(self, text, color):
         COLORS = {
@@ -56,21 +57,20 @@ class Logger:
             return text
         return f"{COLORS[color]}{text}{COLORS['reset']}"
 
-    
     def __call__(self, msg: str, level: int = 0):
         if self.silent:
             return
         if self.quiet and level != self.ERROR:
             return
         if not self.verbose and level >= self.DEBUG:
-            return 
-        
+            return
+
         color = {
             self.NORMAL: None,        # normal
             self.ERROR: "red",       # error
             self.WARNING: "yellow",    # warning
-            self.SUCCESS: "green",     # info 
-            self.INFO: "info",     # info 
+            self.SUCCESS: "green",     # info
+            self.INFO: "info",     # info
             self.DEBUG: None,        # debug (verbose)
             self.DEBUG2: "yellow",     # debug (verbose)
             self.DEBUG3: "blue"     # debug (verbose)
@@ -81,15 +81,24 @@ class Logger:
             print(msg)
 
 
-
 class Tester:
-    def __init__(self, logger:Logger=None):
+    def __init__(self, logger: Logger = None, silent: bool = False):
+        """Creates a tester object with a customizable logger.
+
+        Args:
+            logger (Logger, optional): A Logger instance with your own configuration. If None, the default Logger is used. Defaults to None.
+            silent (bool, optional): If True, the Logger will be called with silent=True and any other setting will be overriden. Defaults to False.
+        """
         if logger is None or not isinstance(logger, Logger):
-            self.logger = Logger()
+            self.logger = Logger(silent=silent)
         else:
             self.logger = logger
-    
+
     def test(self, directory: str, scriptname: str, silent=False) -> dict:
+        if not Tester.check_dir(directory):
+            raise FileNotFoundError(f"Diretório {directory} não acessível.")
+        if not Tester.check_file(scriptname):
+            raise FileNotFoundError(f"Arquivo {scriptname} não acessível.")
         stats = {
             "passed": 0,
             "failed": 0,
@@ -121,10 +130,25 @@ class Tester:
                 stats["failed"] += 1
         return stats
 
-
     #=============#
     #   HELPERS   #
     #=============#
+
+    @staticmethod
+    def check_file(filename: str) -> bool:
+        return os.path.isfile(filename) and os.access(filename, os.R_OK)
+
+    @staticmethod
+    def check_dir(directory: str) -> bool:
+        """Checks if the given directory exists.
+
+        Args:
+            directory (str): The directory to check.
+
+        Returns:
+            bool: True if the directory exists, False otherwise.
+        """
+        return os.path.isdir(directory) and os.access(directory, os.R_OK)
 
     @staticmethod
     def get_test_files(directory: str) -> tuple:
@@ -135,11 +159,9 @@ class Tester:
         outfiles = list(itertools.compress(outfiles, outfiles_that_exists))
         return infiles, outfiles
 
-
     @staticmethod
     def basename(path):
         return os.path.splitext(os.path.basename(path))[0]
-
 
     @staticmethod
     def diff_str(file1, text):
@@ -150,10 +172,10 @@ class Tester:
         else:
             return filecontent, text
 
-    def summarize(self, passed:int, failed:int, total:int) -> None:
-        _r = lambda x: self.logger.colorize(x, "red")
-        _g = lambda x: self.logger.colorize(x, "green")
-        _b = lambda x: self.logger.colorize(x, "cyan")
+    def summarize(self, passed: int, failed: int, total: int) -> None:
+        def _r(x): return self.logger.colorize(x, "red")
+        def _g(x): return self.logger.colorize(x, "green")
+        def _b(x): return self.logger.colorize(x, "cyan")
         p, f, t = f"{passed:>6}", f"{failed:>6}", f"{total:>5}"
 
         print(f"Sumário: | {_g('Passou')}  {_r('Falhou')}  {_b('Total')}")
@@ -191,46 +213,41 @@ if __name__ == "__main__":
     parser.add_argument('--directory', '-d',
                         help='Diretório dos arquivos de teste (.in e .out).')
     args = parser.parse_args()
-    # VERBOSE, QUIET, SUMMARY, SILENT = args.verbose, args.quiet, args.summary, args.silent
 
-
-    log = Logger(verbose=args.verbose, quiet=args.quiet, silent=args.silent, colored=not args.no_colors)
-
+    log = Logger(verbose=args.verbose, quiet=args.quiet,
+                 silent=args.silent, colored=not args.no_colors)
 
     #========================#
     #   LOCALIZAR ARQUIVOS   #
     #========================#
     if args.directory is None:
         path = os.path.dirname(os.path.abspath(__file__))
-    elif os.path.isdir(args.directory):
+    elif Tester.check_dir(args.directory):
         path = args.directory
     elif os.path.isfile(args.directory):
-        log(f"{args.directory} é um arquivo, mas -d espera um diretório. Rode o programa com a opção -h para ver a ajuda.", log.ERROR)
+        log(f"{args.directory} é um arquivo, mas -d espera um diretório. Execute o programa com a opção -h para ver a ajuda.", log.ERROR)
         exit(1)
     else:
-        log(f"O diretório {args.directory} não existe. Rode o programa com a opção -h para ver a ajuda.", log.ERROR)
+        log(f"O diretório {args.directory} não existe. Execute o programa com a opção -h para ver a ajuda.", log.ERROR)
         exit(1)
-
 
     def abspath(filename):
         return os.path.normpath(os.path.join(path, filename))
 
-
     if args.filename is None:
-        r = re.compile(r'lab\d\d.py')
+        r = re.compile(r'lab\d+.py')
         for file in os.listdir(path):
             if r.match(file):
                 labfile = file
                 break
         else:
-            log("Código do laboratório não encontrado. Rode o programa com a opção -h para ver a ajuda.", log.ERROR)
+            log("Código do laboratório não encontrado. Execute o programa com a opção -h para ver a ajuda.", log.ERROR)
             exit(1)
-    elif os.path.isfile(args.filename):
+    elif Tester.check_file(args.filename):
         labfile = args.filename
     else:
-        log(f"O arquivo {args.filename} não existe. Rode o programa com a opção -h para ver a ajuda.", log.ERROR)
+        log(f"O arquivo {args.filename} não existe ou você não tem permissão para acessá-lo. Execute o programa com a opção -h para ver a ajuda.", log.ERROR)
         exit(1)
-
 
     #============#
     #   TESTES   #
@@ -238,7 +255,7 @@ if __name__ == "__main__":
 
     tester = Tester(logger=log)
     stats = tester.test(path, labfile, args.summary)
-     
+
     if not args.silent and not args.quiet:
         tester.summarize(stats["passed"], stats["failed"], stats["total"])
 
