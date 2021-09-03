@@ -255,7 +255,7 @@ if __name__ == "__main__":
     stats = tester.test(path, labfile, args.summary)
 
     if not args.silent and not args.quiet:
-        tester.summarize(stats["passed"], stats["failed"], stats["total"])
+        tester.summarize(**stats)
 
     if stats["total"] == 0:
         log("Nenhum teste realizado. Execute o programa com a flag -h para obter ajuda.", log.ERROR)
